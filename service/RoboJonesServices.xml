@@ -17,25 +17,29 @@ along with this software (see the LICENSE.md file). If not, see
     <!-- robojones & Related Services -->
     <service verb="get" noun="ResponseOllama">
         <in-parameters>
+            <parameter name="query" required="true" allow-html="any"/>
+            <parameter name="model" required="true" default-value="deepseek-coder-v2:16b"/>
         </in-parameters>
         <out-parameters>
-            <parameter name="response" type="String"/>
+            <parameter name="response" type="string"/>
         </out-parameters>
         <actions>
+            <!-- TODO: Use SmatHmacSha256 from WebFacadeImpl.groovy 1192 -->
             <script><![CDATA[
                 org.moqui.util.RestClient modelRestClient = ec.service.rest().method(org.moqui.util.RestClient.POST)
-                        .addHeader("Authorization","Bearer sk-1c0649e6b2444a8286bc8d80c5311dce")
-                        .jsonObject([model:'deepseek-r1:14b',messages:[[role:'user',content:'What is an erp system?']]])
+                        .addHeader("Authorization","Bearer sk-")
+                        .jsonObject([model:model,messages:[[role:'user',content:query]]])
+                        .timeout(600)
                 def modelUriBuilder = modelRestClient.uri().protocol("https").host("ollama.acetousk.com").port(443)
                         .path("/api/chat/completions")
                 modelUriBuilder.build()
 
                 org.moqui.util.RestClient.RestResponse modelRestResponse = modelRestClient.call()
                 context.modelResponseMap = (Map) modelRestResponse.jsonObject()
-
                 ]]></script>
 
             <set field="models" from="modelResponseMap.data"/>
+            <set field="response" from="models.getText()"/>
             <log level="warn" message="modelResponseMap: ${modelResponseMap}"/>
         </actions>
     </service>
@@ -48,7 +52,7 @@ along with this software (see the LICENSE.md file). If not, see
         <actions>
             <script><![CDATA[
                 org.moqui.util.RestClient modelRestClient = ec.service.rest().method(org.moqui.util.RestClient.GET)
-                        .addHeader("Authorization","Bearer sk-1c0649e6b2444a8286bc8d80c5311dce")
+                        .addHeader("Authorization","Bearer sk-")
                 def modelUriBuilder = modelRestClient.uri().protocol("https").host("ollama.acetousk.com").port(443)
                         .path("/api/models")
                 modelUriBuilder.build()

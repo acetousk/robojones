@@ -19,5 +19,11 @@ along with this software (see the LICENSE.md file). If not, see
         name="robojones" displayName="robojones API" version="0.0.0" description="">
 
     <!-- robojones & Related Rest API -->
+    <resource name="ai" require-authentication="anonymous-all">
+        <resource name="models">
+            <method type="get"><service name="RoboJonesServices.get#ResponseOllama"/></method>
+            <method type="post"><service name="RoboJonesServices.get#GetModels"/></method>
+        </resource>
+    </resource>
 
 </resource>
